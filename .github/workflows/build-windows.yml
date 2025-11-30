@@ -1,4 +1,4 @@
-name: Build KeyFinder 2.4 Windows (MinGW, no Python)
+name: Build KeyFinder 2.4 Windows (MinGW only)
 
 on:
   workflow_dispatch:
