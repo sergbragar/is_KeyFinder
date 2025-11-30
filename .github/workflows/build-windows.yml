@@ -1,4 +1,4 @@
-name: Build KeyFinder 2.4 Windows (MinGW)
+name: Build KeyFinder 2.4 Windows (MinGW, no Python)
 
 on:
   workflow_dispatch:
@@ -22,8 +22,7 @@ jobs:
           arch: win64_mingw
 
       - name: Add Qt to PATH
-        run: |
-          echo "C:\Qt\5.15.2\mingw81_64\bin" >> $env:GITHUB_PATH
+        run: echo "C:\\Qt\\5.15.2\\mingw81_64\\bin" >> $env:GITHUB_PATH
 
       - name: Build KeyFinder
         run: |
@@ -33,12 +32,12 @@ jobs:
       - name: Package artifact
         run: |
           mkdir out
-          cp release/*.exe out/ || cp bin/*.exe out/
-          cd out
-          powershell Compress-Archive -Path * -DestinationPath KeyFinder-2.4-Windows.zip -Force
+          if exist release\*.exe copy release\* out\
+          if exist bin\*.exe copy bin\* out\
+          powershell Compress-Archive -Path out\* -DestinationPath KeyFinder-2.4-Windows.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: KeyFinder-2.4-Windows
-          path: out/KeyFinder-2.4-Windows.zip
+          path: KeyFinder-2.4-Windows.zip
