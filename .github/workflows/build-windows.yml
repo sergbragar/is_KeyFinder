@@ -1,4 +1,4 @@
-name: Build KeyFinder 2.4 Windows
+name: Build KeyFinder 2.4 Windows (MinGW)
 
 on:
   workflow_dispatch:
@@ -13,36 +13,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Qt 5.15.2
+      - name: Install Qt 5.15.2 for MinGW
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.15.2'
           host: windows
           target: desktop
+          arch: win64_mingw
 
-      - name: Setup MSVC environment
-        shell: cmd
+      - name: Add Qt to PATH
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
+          echo "C:\Qt\5.15.2\mingw81_64\bin" >> $env:GITHUB_PATH
 
-      - name: Configure with qmake
-        shell: bash
+      - name: Build KeyFinder
         run: |
-          export PATH="/c/Qt/5.15.2/msvc2019_64/bin:$PATH"
           qmake -r is_KeyFinder.pro
-
-      - name: Build
-        shell: cmd
-        run: |
-          nmake /f Makefile.Release
+          mingw32-make
 
       - name: Package artifact
-        shell: bash
         run: |
           mkdir out
           cp release/*.exe out/ || cp bin/*.exe out/
           cd out
-          zip -r KeyFinder-2.4-Windows.zip *
+          powershell Compress-Archive -Path * -DestinationPath KeyFinder-2.4-Windows.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
